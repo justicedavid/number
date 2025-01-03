@@ -56,7 +56,7 @@ import TwoFactor from './Security/TwoFactor'
 import EmailFromInstagram from './Security/EmailFromInstagram'
 import AddAccount from './AddAccount'
 import Logout from './Logout'
-let navigation = {
+const navigation = {
     EditSavedCollection,
     AddToSavedCollection,
     SavedCollection,
