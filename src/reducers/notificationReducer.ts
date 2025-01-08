@@ -4,11 +4,11 @@ import { UserInfo } from './userReducer'
 import { Post, ExtraPost } from './postReducer'
 import { Comment } from './commentReducer'
 import { Story } from './storyReducer'
-export const seenTypes = {
+export let seenTypes = {
     NOTSEEN: 0,
     SEEN: 1,
 }
-export const notificationTypes = {
+export let notificationTypes = {
     LIKE_MY_POST: 1,
     COMMENT_MY_POST: 2,
     REPLY_MY_COMMENT: 3,
@@ -19,7 +19,7 @@ export const notificationTypes = {
     SOMEONE_LIKE_SOMEONE_POST: 8,
     SOMEONE_COMMENT_SOMEONE_POST: 9
 }
-export const notificationActionTypes = {
+export let notificationActionTypes = {
     FETCH_NOTIFICATIONS_REQUEST: 'FETCH_NOTIFICATIONS_REQUEST',
     FETCH_NOTIFICATIONS_SUCCESS: 'FETCH_NOTIFICATIONS_SUCCESS',
     FETCH_NOTIFICATIONS_FAILURE: 'FETCH_NOTIFICATIONS_FAILURE',
@@ -68,9 +68,9 @@ export interface NotificationSuccessAction<T> {
 export type NotificationAction = NotificationSuccessAction<NotificationList>
     | NotificationErrorAction
 
-const defaultState: NotificationList = []
+let defaultState: NotificationList = []
 
-const reducer = (state: NotificationList = defaultState, action: NotificationAction): NotificationList => {
+let reducer = (state: NotificationList = defaultState, action: NotificationAction): NotificationList => {
     switch (action.type) {
         case notificationActionTypes.FETCH_NOTIFICATIONS_REQUEST:
             state = [...defaultState]
@@ -81,7 +81,7 @@ const reducer = (state: NotificationList = defaultState, action: NotificationAct
             return state
         case notificationActionTypes.FETCH_NOTIFICATIONS_FAILURE:
             action = <NotificationErrorAction>action
-            const message = action.payload.message
+            let message = action.payload.message
             Alert.alert('Error', message)
             return state
         default:
