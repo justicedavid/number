@@ -3,7 +3,7 @@ import { Alert } from 'react-native'
 import { Post, PostImage } from './postReducer'
 import { Story } from './storyReducer'
 import { MapBoxAddress } from '../utils'
-export const userActionTypes = {
+export let userActionTypes = {
     LOGIN_REQUEST: 'LOGIN_REQUEST',
     LOGIN_SUCCESS: 'LOGIN_SUCCESS',
     LOGIN_FAILURE: 'LOGIN_FAILURE',
@@ -322,7 +322,7 @@ export type userAction = SuccessAction<userPayload> | ErrorAction
     | SuccessAction<ArchivePayload>
     | SuccessAction<HighlightPayload>
     | SuccessAction<undefined>
-export const defaultUserState: userPayload = {
+export let defaultUserState: userPayload = {
     user: {},
     photos: [],
     tagPhotos: [],
@@ -440,7 +440,7 @@ export const defaultUserState: userPayload = {
     },
     currentStory: []
 }
-const reducer = (state: userPayload = defaultUserState, action: userAction): userPayload => {
+let reducer = (state: userPayload = defaultUserState, action: userAction): userPayload => {
     switch (action.type) {
         case userActionTypes.LOGIN_REQUEST:
             state = { ...state, user: {} }
@@ -451,7 +451,7 @@ const reducer = (state: userPayload = defaultUserState, action: userAction): use
             return state
         case userActionTypes.LOGIN_FAILURE:
             action = <ErrorAction>action
-            const message = action.payload.message
+            let message = action.payload.message
             Alert.alert('Error', message)
             return state
         case userActionTypes.LOGOUT_SUCCESS:
@@ -469,7 +469,7 @@ const reducer = (state: userPayload = defaultUserState, action: userAction): use
             return state
         case userActionTypes.REGISTER_FAILURE:
             action = <ErrorAction>action
-            const message2 = action.payload.message
+            let message2 = action.payload.message
             Alert.alert('Error', message2)
             return state
         case userActionTypes.UNFOLLOW_REQUEST:
@@ -493,7 +493,7 @@ const reducer = (state: userPayload = defaultUserState, action: userAction): use
             return state
         case userActionTypes.UNFOLLOW_FAILURE:
             action = <ErrorAction>action
-            const message3 = action.payload.message
+            let message3 = action.payload.message
             Alert.alert('Error', message3)
             return state
         case userActionTypes.FOLLOW_REQUEST:
@@ -527,7 +527,7 @@ const reducer = (state: userPayload = defaultUserState, action: userAction): use
             return state
         case userActionTypes.FETCH_EXTRA_INFO_FAILURE:
             action = <ErrorAction>action
-            const message4 = action.payload.message
+            let message4 = action.payload.message
             Alert.alert('Error', message4)
             return state
         case userActionTypes.UPDATE_NOTIFICATION_SETTING_REQUEST:
