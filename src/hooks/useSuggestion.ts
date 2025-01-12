@@ -25,35 +25,35 @@ export type ExtraSuggestionUserInfo = MixedUserInfo & {
 }
 export function useSuggestion(limit?: number): [ExtraSuggestionUserInfo[],
     React.Dispatch<React.SetStateAction<ExtraSuggestionUserInfo[]>>] {
-    const myUsername = store.getState().user.user.userInfo?.username || ''
-    const extraInfo = useSelector(state => state.user.extraInfo)
-    const [suggests, setSuggests] = useState<ExtraSuggestionUserInfo[]>([])
+    var myUsername = store.getState().user.user.userInfo?.username || ''
+    var extraInfo = useSelector(state => state.user.extraInfo)
+    var [suggests, setSuggests] = useState<ExtraSuggestionUserInfo[]>([])
     useEffect(() => {
         if (extraInfo) {
             fetchSuggestion()
         }
     }, [extraInfo])
     //DANGEROUS~~!!!!
-    const fetchSuggestion = async () => {
+    var fetchSuggestion = async () => {
 
 
-        const unSuggestList = [...(extraInfo?.unSuggestList || [])]
-        const followerUsrnames = [...(extraInfo?.followers || [])]
-        const follwingUsrnames = [...(extraInfo?.followings || [])]
+        var unSuggestList = [...(extraInfo?.unSuggestList || [])]
+        var followerUsrnames = [...(extraInfo?.followers || [])]
+        var follwingUsrnames = [...(extraInfo?.followings || [])]
         followerUsrnames.splice(followerUsrnames.indexOf(myUsername || ""), 1)
         follwingUsrnames.splice(follwingUsrnames.indexOf(myUsername || ""), 1)
-        const ref = firestore()
-        const rq = await ref.collection('users').doc(myUsername).get()
-        const myUserData: ProfileX = rq.data() || {}
-        const currentBlockList = myUserData.privacySetting?.blockedAccounts?.blockedAccounts || []
+        var ref = firestore()
+        var rq = await ref.collection('users').doc(myUsername).get()
+        var myUserData: ProfileX = rq.data() || {}
+        var currentBlockList = myUserData.privacySetting?.blockedAccounts?.blockedAccounts || []
         let recentInteractions: string[] = []
-        const rs = await ref.collection('posts')
+        var rs = await ref.collection('posts')
             .where('userId', '==', myUsername)
             .limit(10)
             .orderBy('create_at', 'desc')
             .get()
         rs.docs.map(post => {
-            const data: Post = post.data()
+            var data: Post = post.data()
             data.likes?.map(usr =>
                 recentInteractions.push(usr)
             )
@@ -70,16 +70,16 @@ export function useSuggestion(limit?: number): [ExtraSuggestionUserInfo[],
         let recentInteractionsForTask = [...recentInteractions]
         if (limit) recentInteractionsForTask = recentInteractionsForTask
             .splice(0, limit - recentInteractions.length)
-        const asyncFetchUser = async (userX: string, type: 1 | 2 | 3 | 4) => {
-            const rq = await ref.collection('users').doc(userX).get()
-            const { username, avatarURL, requestedList, fullname, followings,
+        var asyncFetchUser = async (userX: string, type: 1 | 2 | 3 | 4) => {
+            var rq = await ref.collection('users').doc(userX).get()
+            var { username, avatarURL, requestedList, fullname, followings,
                 privacySetting: {
                     accountPrivacy
                 }
             } = rq.data() as (ExtraSuggestionUserInfo & {
                 privacySetting: { accountPrivacy: { private?: boolean } }
             })
-            const info: ExtraSuggestionUserInfo = {
+            var info: ExtraSuggestionUserInfo = {
                 type: type,
                 private: accountPrivacy.private || false,
                 username,
@@ -90,7 +90,7 @@ export function useSuggestion(limit?: number): [ExtraSuggestionUserInfo[],
             }
             return info
         }
-        const recentInteractionTasks: Promise<ExtraSuggestionUserInfo>[] = recentInteractionsForTask
+        var recentInteractionTasks: Promise<ExtraSuggestionUserInfo>[] = recentInteractionsForTask
             .map(usr => asyncFetchUser(usr, 1))
 
         let dontFollowUsrnames = [...followerUsrnames]
@@ -103,7 +103,7 @@ export function useSuggestion(limit?: number): [ExtraSuggestionUserInfo[],
         let dontFolloweUsernameForTask = [...dontFollowUsrnames]
         if (limit) dontFolloweUsernameForTask = dontFolloweUsernameForTask
             .splice(0, limit - recentInteractionsForTask.length)
-        const dontFollowBackTasks: Promise<ExtraSuggestionUserInfo>[] = dontFolloweUsernameForTask
+        var dontFollowBackTasks: Promise<ExtraSuggestionUserInfo>[] = dontFolloweUsernameForTask
             .map(usr => asyncFetchUser(usr, 2))
         Promise.all(recentInteractionTasks
             .concat(dontFollowBackTasks)
@@ -126,16 +126,16 @@ export function useSuggestion(limit?: number): [ExtraSuggestionUserInfo[],
             if (limit) followedByInteractionForTask = followedByInteractionForTask
                 .splice(0, limit - recentInteractionsForTask.length
                     - dontFolloweUsernameForTask.length)
-            const followedByInteractionTasks: Promise<ExtraSuggestionUserInfo>[]
+            var followedByInteractionTasks: Promise<ExtraSuggestionUserInfo>[]
                 = followedByInteractionForTask
                     .map(usr => asyncFetchUser(usr, 4))
 
             Promise.all(followedByInteractionTasks).then(result2 => {
-                const followerOfFollowingUsernameTasks: Promise<string>[]
+                var followerOfFollowingUsernameTasks: Promise<string>[]
                     = follwingUsrnames.map(async userX => {
-                        const rq = await ref.collection('users').doc(userX).get()
-                        const userData: UserInfo = rq.data() || {}
-                        const userFollowings = (userData.followings || [])
+                        var rq = await ref.collection('users').doc(userX).get()
+                        var userData: UserInfo = rq.data() || {}
+                        var userFollowings = (userData.followings || [])
                         if (userFollowings.length > 0) {
                             let randomPickusername = userFollowings[
                                 Math.floor(Math.random()
@@ -157,7 +157,7 @@ export function useSuggestion(limit?: number): [ExtraSuggestionUserInfo[],
                         .splice(0, limit - recentInteractionsForTask.length
                             - dontFolloweUsernameForTask.length
                             - followedByInteractionForTask.length)
-                    const followerOfFollowingsTasks: Promise<ExtraSuggestionUserInfo>[] = followedByFollwers
+                    var followerOfFollowingsTasks: Promise<ExtraSuggestionUserInfo>[] = followedByFollwers
                         .map(usr => asyncFetchUser(usr, 3))
                     Promise.all(followerOfFollowingsTasks).then(result3 => {
                         result = result.concat(result2).concat(result3)
