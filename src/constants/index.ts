@@ -8,9 +8,9 @@ import SettingComponents from '../screens/Home/Account/Setting';
 import { defaultUserState } from '../reducers/userReducer';
 import { convertToFirebaseDatabasePathName } from '../utils';
 //Define API ClASSIFY
-export let APP_NAME = 'Instagram'
-export let CLASSIFY_API = 'http://192.168.1.2:5555/classify'
-let firebaseConfig = {
+export const APP_NAME = 'Instagram'
+export const CLASSIFY_API = 'http://192.168.1.2:5555/classify'
+const firebaseConfig = {
     apiKey: "AIzaSyATgIePHiOXnqlzUN4rRyyaPw4CTWH7yWA",
     authDomain: "vucms-7f6fa.firebaseapp.com",
     databaseURL: "https://vucms-7f6fa.firebaseio.com",
@@ -56,8 +56,8 @@ firebase.initializeApp(firebaseConfig)
 //         })
 //     })
 // })
-export let MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoidnVjbXMwMjAyIiwiYSI6ImNrYzd3YXN5YjB0bzQyeWxqaHk3cndkZWUifQ.Rrt9iMYACnqGK-rCblD0Ag'
-let sources = [
+export const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoidnVjbXMwMjAyIiwiYSI6ImNrYzd3YXN5YjB0bzQyeWxqaHk3cndkZWUifQ.Rrt9iMYACnqGK-rCblD0Ag'
+const sources = [
     'https://www.statnews.com/wp-content/uploads/2019/05/GettyImages-484960237-645x645.jpg',
     'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSAFHzgUiwqYL_SoXWfUYVC8iDOEKyvNSQZHZMXIM81SuH64_3E&usqp=CAU',
     'https://r-cf.bstatic.com/images/hotel/max1024x768/206/206081932.jpg',
@@ -69,10 +69,10 @@ let sources = [
     'https://pix10.agoda.net/hotelImages/545437/-1/3e3de077901fd04bcbf4ba1435bb9e37.jpg?s=1024x768',
     'https://images.pexels.com/photos/1666021/pexels-photo-1666021.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'
 ]
-export let DEFAULT_PHOTO_URI = 'https://www.pavilionweb.com/wp-content/uploads/2017/03/man-300x300.png'
+export const DEFAULT_PHOTO_URI = 'https://www.pavilionweb.com/wp-content/uploads/2017/03/man-300x300.png'
 // setInterval(() => {
-//     let uid = new Date().getTime()
-//     let ref = firebase.firestore()
+//     const uid = new Date().getTime()
+//     const ref = firebase.firestore()
 //     ref.collection('posts').doc(`${uid}`).set({
 //         uid,
 //         userId: 'vucms',
@@ -86,9 +86,9 @@ export let DEFAULT_PHOTO_URI = 'https://www.pavilionweb.com/wp-content/uploads/2
 //         permission: 1
 //     })
 // }, 1000)
-export let STATUS_BAR_HEIGHT: number = getStatusBarHeight()
-export let SCREEN_HEIGHT: number = Math.round(Dimensions.get('window').height)
-export let SCREEN_WIDTH: number = Math.round(Dimensions.get('window').width)
+export const STATUS_BAR_HEIGHT: number = getStatusBarHeight()
+export const SCREEN_HEIGHT: number = Math.round(Dimensions.get('window').height)
+export const SCREEN_WIDTH: number = Math.round(Dimensions.get('window').width)
 export type SettingNavigation = {
     icon?: string,
     name: string,
@@ -96,7 +96,7 @@ export type SettingNavigation = {
     navigationName: string,
     child?: SettingNavigation[]
 }
-export let settingNavigationMap: SettingNavigation[] = [
+export const settingNavigationMap: SettingNavigation[] = [
     {
         icon: 'account-plus-outline',
         name: 'Follow and Invite Friends',
