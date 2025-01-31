@@ -6,22 +6,22 @@ import { store } from "../store";
 import { generateUsernameKeywords } from '../utils';
 import { AddStoryArchiveRequest } from './userActions';
 
-export var FetchStoryListRequest = ():
+export const FetchStoryListRequest = ():
     ThunkAction<Promise<void>, {}, {}, StoryAction> => {
     return async (dispatch: ThunkDispatch<{}, {}, StoryAction>) => {
         try {
-            var ref = firestore()
-            var me = store.getState().user.user
-            var myUsername = `${me.userInfo?.username}`
-            var request = await ref
+            const ref = firestore()
+            const me = store.getState().user.user
+            const myUsername = `${me.userInfo?.username}`
+            const request = await ref
                 .collection('users')
                 .doc(me.userInfo?.username)
                 .get()
-            var result = request.data()
+            const result = request.data()
             if (request.exists) {
-                var followingList: string[] = result?.followings || []
+                const followingList: string[] = result?.followings || []
                 let collection: Story[] = []
-                var ownIds: string[] = []
+                const ownIds: string[] = []
                 while (followingList.length > 0) {
                     let result = await ref
                         .collection('stories')
@@ -30,9 +30,9 @@ export var FetchStoryListRequest = ():
                             new Date(new Date().getTime() - 24 * 3600 * 1000))
                         .orderBy('create_at', 'desc')
                         .get()
-                    var temp: Story[] = result.docs.map(doc => {
-                        var data: Story = doc.data() || {}
-                        var currentSeenList: string[] = data.seenList || []
+                    const temp: Story[] = result.docs.map(doc => {
+                        const data: Story = doc.data() || {}
+                        const currentSeenList: string[] = data.seenList || []
                         if (currentSeenList.indexOf(`${me.userInfo?.username}`) > -1) {
                             data.seen = 1
                         } else data.seen = 0
@@ -44,16 +44,16 @@ export var FetchStoryListRequest = ():
                 }
                 let ownInfos: UserInfo[] = []
                 while (ownIds.length > 0) {
-                    var result = await ref
+                    const result = await ref
                         .collection('users')
                         .where('username', 'in', ownIds.splice(0, 10))
                         .get()
                     ownInfos = ownInfos.concat(result.docs.map(doc => doc.data()))
                 }
-                var fullStory: StoryList = ownInfos.map(info => {
-                    var collectStory: Story[] = collection
+                const fullStory: StoryList = ownInfos.map(info => {
+                    const collectStory: Story[] = collection
                         .filter(story => story.userId == info.username)
-                    var extraStory: ExtraStory = {
+                    const extraStory: ExtraStory = {
                         ownUser: info,
                         storyList: collectStory
                     }
@@ -67,9 +67,9 @@ export var FetchStoryListRequest = ():
                         (a.create_at?.toMillis() || 0) - (b.create_at?.toMillis() || 0)
                     )
                 })
-                var myStoryIndex = fullStory.findIndex(x => x.ownUser.username === myUsername)
+                const myStoryIndex = fullStory.findIndex(x => x.ownUser.username === myUsername)
                 if (myStoryIndex > -1) {
-                    var myStory = fullStory.splice(myStoryIndex, 1)[0]
+                    const myStory = fullStory.splice(myStoryIndex, 1)[0]
                     fullStory.unshift(myStory)
                 }
                 dispatch(FetchStoryListSuccess(fullStory))
@@ -80,7 +80,7 @@ export var FetchStoryListRequest = ():
         }
     }
 }
-export var FetchStoryListFailure = (): StoryErrorAction => {
+export const FetchStoryListFailure = (): StoryErrorAction => {
     return {
         type: storyActionTypes.FETCH_STORY_LIST_FAILURE,
         payload: {
@@ -88,26 +88,26 @@ export var FetchStoryListFailure = (): StoryErrorAction => {
         }
     }
 }
-export var FetchStoryListSuccess = (payload: StoryList): StorySuccessAction => {
+export const FetchStoryListSuccess = (payload: StoryList): StorySuccessAction => {
     return {
         type: storyActionTypes.FETCH_STORY_LIST_SUCCESS,
         payload: payload
     }
 }
-export var PostStoryRequest = (images: Story[]):
+export const PostStoryRequest = (images: Story[]):
     ThunkAction<Promise<string[]>, {}, {}, StoryAction> => {
     return async (dispatch: ThunkDispatch<{}, {}, StoryAction>) => {
         try {
-            var ref = firestore()
-            var me = store.getState().user.user
-            var shouldSaving = !!store.getState().user.setting?.privacy?.story?.saveToArchive
-            var rq = await ref.collection('users')
+            const ref = firestore()
+            const me = store.getState().user.user
+            const shouldSaving = !!store.getState().user.setting?.privacy?.story?.saveToArchive
+            const rq = await ref.collection('users')
                 .doc(me.userInfo?.username)
                 .get()
             if (rq.exists) {
-                var storyArchiveCollection: StoryArchive[] = []
+                const storyArchiveCollection: StoryArchive[] = []
                 for (let img of images) {
-                    var uid = new Date().getTime()
+                    const uid = new Date().getTime()
                     await ref.collection('stories').doc(`${uid}`).set({
                         ...img,
                         uid
@@ -118,23 +118,23 @@ export var PostStoryRequest = (images: Story[]):
                         superId: img.source as number
                     })
                         ; (img.hashtags || []).map(async hashtag => {
-                            var rq = await ref.collection('hashtags')
+                            const rq = await ref.collection('hashtags')
                                 .where('name', '==', hashtag).get()
                             if (rq.size > 0) {
-                                var targetHashtag = rq.docs[0]
-                                var data: HashTag = targetHashtag.data() || {}
-                                var stories = (data.stories || [])
+                                const targetHashtag = rq.docs[0]
+                                const data: HashTag = targetHashtag.data() || {}
+                                const stories = (data.stories || [])
                                 stories.push(uid)
                                 targetHashtag.ref.update({
                                     stories
                                 })
                             } else {
-                                var keyword = generateUsernameKeywords(hashtag)
+                                const keyword = generateUsernameKeywords(hashtag)
                                 keyword.splice(0, 1)
-                                var fetchRelatedTags: Promise<string[]>[] = keyword.map(async character => {
-                                    var rq = await ref.collection('hashtags').
+                                const fetchRelatedTags: Promise<string[]>[] = keyword.map(async character => {
+                                    const rq = await ref.collection('hashtags').
                                         where('keyword', 'array-contains', character).get()
-                                    var data: HashTag[] = rq.docs.map(x => x.data() || {})
+                                    const data: HashTag[] = rq.docs.map(x => x.data() || {})
                                     return data.map(x => x.name || '')
                                 })
                                 Promise.all(fetchRelatedTags).then(async rs => {
@@ -144,16 +144,16 @@ export var PostStoryRequest = (images: Story[]):
                                     })
                                     relatedTags = Array.from(new Set(relatedTags))
                                     relatedTags.map(async tag => {
-                                        var rq = await ref.collection('hashtags').doc(`${tag}`).get()
+                                        const rq = await ref.collection('hashtags').doc(`${tag}`).get()
                                         if (rq.exists) {
-                                            var currentRelatedTags = (rq.data() || {}).relatedTags || []
+                                            const currentRelatedTags = (rq.data() || {}).relatedTags || []
                                             currentRelatedTags.push(hashtag)
                                             rq.ref.update({
                                                 relatedTags: currentRelatedTags
                                             })
                                         }
                                     })
-                                    var hashtagUid = new Date().getTime()
+                                    const hashtagUid = new Date().getTime()
                                     await ref.collection('hashtags').doc(hashtag).set({
                                         name: hashtag,
                                         followers: [],
@@ -184,25 +184,25 @@ export var PostStoryRequest = (images: Story[]):
         return []
     }
 }
-export var DeleteStoryRequest = (storyId: number):
+export const DeleteStoryRequest = (storyId: number):
     ThunkAction<Promise<string[]>, {}, {}, StoryAction> => {
     return async (dispatch: ThunkDispatch<{}, {}, StoryAction>) => {
         try {
-            var ref = firestore()
-            var me = store.getState().user.user
-            var myUsername = `${me.userInfo?.username}`
-            var rq = await ref.collection('stories')
+            const ref = firestore()
+            const me = store.getState().user.user
+            const myUsername = `${me.userInfo?.username}`
+            const rq = await ref.collection('stories')
                 .doc(`${storyId}`)
                 .get()
             if (rq.exists) {
-                var story: Story = rq.data() || {}
+                const story: Story = rq.data() || {}
                 if (story.userId === myUsername) {
                     await rq.ref.delete()
-                    // var stories = [...store.getState().storyList]
-                    // var index = stories.findIndex(x => x.ownUser.username === myUsername)
-                    // var newExtraStory = stories[index]
-                    // var newStoryList = [...newExtraStory.storyList]
-                    // var storyIndex = newStoryList.findIndex(x => x.uid === storyId)
+                    // const stories = [...store.getState().storyList]
+                    // const index = stories.findIndex(x => x.ownUser.username === myUsername)
+                    // const newExtraStory = stories[index]
+                    // const newStoryList = [...newExtraStory.storyList]
+                    // const storyIndex = newStoryList.findIndex(x => x.uid === storyId)
                     // newStoryList.splice(storyIndex, 1)
                     // newExtraStory.storyList = newStoryList
                     // stories[index] = newExtraStory
