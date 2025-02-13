@@ -1,7 +1,7 @@
 import { firestore } from 'firebase'
 import { DirectMessagesOptions, EmailandSMSNotificationsOptions, FollowingFollower, FromInstagramOptions, LiveIGTVOptions, PostStoryCommentOptions, PrivacyCommentOptions, PrivacyStoryOptions, PrivacyTagsOptions, SearchItem, StoryArchive, PostArchive, Highlight } from './userReducer'
 import { Post } from './postReducer'
-export let userXActionTypes = {
+export const userXActionTypes = {
     FETCH_PROFILEX_SUCCESS: 'FETCH_PROFILEX_SUCCESS',
     FETCH_PROFILEX_FAILURE: 'FETCH_PROFILEX_FAILURE'
 }
@@ -95,10 +95,10 @@ export interface SuccessAction<T> {
     payload: T
 }
 export type userXAction = SuccessAction<ProfileX> | ErrorAction
-export let defaultUserState: ProfileX = {
+export const defaultUserState: ProfileX = {
 
 }
-let reducer = (state: ProfileX = defaultUserState, action: userXAction): ProfileX => {
+const reducer = (state: ProfileX = defaultUserState, action: userXAction): ProfileX => {
     switch (action.type) {
         case userXActionTypes.FETCH_PROFILEX_SUCCESS:
             action = <SuccessAction<ProfileX>>action
