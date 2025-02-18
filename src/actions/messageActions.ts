@@ -9,26 +9,26 @@ import { convertToFirebaseDatabasePathName, revertFirebaseDatabasePathName } fro
 import { ProfileX } from '../reducers/profileXReducer';
 
 let allowListenChildAdd = false
-export var TriggerMessageListenerRequest = ():
+export const TriggerMessageListenerRequest = ():
     ThunkAction<Promise<void>, {}, {}, MessageAction> => {
     return async (dispatch: ThunkDispatch<{}, {}, MessageAction>) => {
         try {
-            var dbRef = database()
-            var ref = firestore()
-            var myUsername = store.getState().user.user.userInfo?.username || ''
-            var myUsernamePath = convertToFirebaseDatabasePathName(
+            const dbRef = database()
+            const ref = firestore()
+            const myUsername = store.getState().user.user.userInfo?.username || ''
+            const myUsernamePath = convertToFirebaseDatabasePathName(
                 myUsername)
 
             dbRef.ref(`/messages/${(myUsernamePath)}/`).once('value', async snap => {
-                var messageCollection: Message[][] = []
-                var userIds: string[] = []
+                const messageCollection: Message[][] = []
+                const userIds: string[] = []
                 snap.forEach(targetUser => {
                     if (targetUser.key !== 'forceUpdate') {
-                        var userId = revertFirebaseDatabasePathName(`${targetUser.key}`)
+                        const userId = revertFirebaseDatabasePathName(`${targetUser.key}`)
                         if (userIds.indexOf(`${targetUser.key}`) < 0)
                             userIds.push(userId)
 
-                        var messages: Message[] = []
+                        const messages: Message[] = []
                         if (snap.val() !== 'NULL') {
                             targetUser.forEach(m => {
                                 messages.push({
@@ -50,19 +50,19 @@ export var TriggerMessageListenerRequest = ():
 
                     dbRef.ref(`/messages/${(myUsernamePath)}/${convertToFirebaseDatabasePathName(userId)}`)
                         .on('child_changed', async snap => {
-                            var child: Message = snap.val()
-                            var uid = child.uid
-                            var realUsername = revertFirebaseDatabasePathName(userId)
-                            var extraMsgIndex = store.getState().messages.findIndex(x => x.ownUser.username === realUsername)
+                            const child: Message = snap.val()
+                            const uid = child.uid
+                            const realUsername = revertFirebaseDatabasePathName(userId)
+                            const extraMsgIndex = store.getState().messages.findIndex(x => x.ownUser.username === realUsername)
                             if (extraMsgIndex > -1) {
-                                var extraMsg = store.getState().messages[extraMsgIndex]
-                                var msgIndex = extraMsg.messageList.findIndex(x => x.uid === uid)
+                                const extraMsg = store.getState().messages[extraMsgIndex]
+                                const msgIndex = extraMsg.messageList.findIndex(x => x.uid === uid)
                                 if (msgIndex > -1) {
                                     extraMsg.messageList[msgIndex] = {
                                         ...child,
                                         userId
                                     }
-                                    var extraMsgList = [...store.getState().messages]
+                                    const extraMsgList = [...store.getState().messages]
                                     extraMsgList[extraMsgIndex] = { ...extraMsg }
                                     dispatch(TriggerMessageListenerSuccess(extraMsgList))
                                 }
@@ -70,19 +70,19 @@ export var TriggerMessageListenerRequest = ():
                         })
                     dbRef.ref(`/messages/${convertToFirebaseDatabasePathName(userId)}/${(myUsernamePath)}`)
                         .on('child_changed', async snap => {
-                            var child: Message = snap.val()
-                            var uid = child.uid
-                            var realUsername = revertFirebaseDatabasePathName(userId)
-                            var extraMsgIndex = store.getState().messages.findIndex(x => x.ownUser.username === realUsername)
+                            const child: Message = snap.val()
+                            const uid = child.uid
+                            const realUsername = revertFirebaseDatabasePathName(userId)
+                            const extraMsgIndex = store.getState().messages.findIndex(x => x.ownUser.username === realUsername)
                             if (extraMsgIndex > -1) {
-                                var extraMsg = store.getState().messages[extraMsgIndex]
-                                var msgIndex = extraMsg.messageList.findIndex(x => x.uid === uid)
+                                const extraMsg = store.getState().messages[extraMsgIndex]
+                                const msgIndex = extraMsg.messageList.findIndex(x => x.uid === uid)
                                 if (msgIndex > -1) {
                                     extraMsg.messageList[msgIndex] = {
                                         ...child,
                                         userId: myUsername
                                     }
-                                    var extraMsgList = [...store.getState().messages]
+                                    const extraMsgList = [...store.getState().messages]
                                     extraMsgList[extraMsgIndex] = { ...extraMsg }
                                     dispatch(TriggerMessageListenerSuccess(extraMsgList))
                                 }
@@ -91,27 +91,27 @@ export var TriggerMessageListenerRequest = ():
                     dbRef.ref(`/messages/${(myUsernamePath)}/${convertToFirebaseDatabasePathName(userId)}`)
                         .on('child_added', async snap => {
                             if (allowListenChildAdd) {
-                                var child: Message = snap.val()
-                                var msg: Message = {
+                                const child: Message = snap.val()
+                                const msg: Message = {
                                     ...child,
                                     userId
                                 }
-                                var extraMsgList = [...store.getState().messages]
-                                var extraMsgIndex = extraMsgList.findIndex(x => x.ownUser.username === userId)
+                                const extraMsgList = [...store.getState().messages]
+                                const extraMsgIndex = extraMsgList.findIndex(x => x.ownUser.username === userId)
                                 if (extraMsgIndex > -1) {
-                                    var extraMsg = extraMsgList[extraMsgIndex]
+                                    const extraMsg = extraMsgList[extraMsgIndex]
                                     extraMsg.messageList = [msg, ...extraMsg.messageList]
                                     extraMsgList[extraMsgIndex] = { ...extraMsg }
                                 } else {
-                                    var rq = await firestore().collection('users').doc(`${userId}`).get()
-                                    var userData: ProfileX = rq.data() || {}
+                                    const rq = await firestore().collection('users').doc(`${userId}`).get()
+                                    const userData: ProfileX = rq.data() || {}
                                     dbRef.ref(`/online/${snap.key}`).once('value', snap2 => {
-                                        var extraMsg: ExtraMessage = {
+                                        const extraMsg: ExtraMessage = {
                                             ownUser: userData,
                                             messageList: [msg],
                                             online: snap2.val()
                                         }
-                                        var newExtraMsgList = [extraMsg, ...extraMsgList]
+                                        const newExtraMsgList = [extraMsg, ...extraMsgList]
                                         newExtraMsgList.sort((a, b) =>
                                             (b.messageList.length > 0 ? b.messageList[0].create_at : 0) - (a.messageList.length > 0 ? a.messageList[0].create_at : 0))
                                         return dispatch(TriggerMessageListenerSuccess(newExtraMsgList))
@@ -125,27 +125,27 @@ export var TriggerMessageListenerRequest = ():
                     dbRef.ref(`/messages/${convertToFirebaseDatabasePathName(userId)}/${(myUsernamePath)}`)
                         .on('child_added', async snap => {
                             if (allowListenChildAdd) {
-                                var child: Message = snap.val()
-                                var msg: Message = {
+                                const child: Message = snap.val()
+                                const msg: Message = {
                                     ...child,
                                     userId: myUsername
                                 }
-                                var extraMsgList = [...store.getState().messages]
-                                var extraMsgIndex = extraMsgList.findIndex(x => x.ownUser.username === userId)
+                                const extraMsgList = [...store.getState().messages]
+                                const extraMsgIndex = extraMsgList.findIndex(x => x.ownUser.username === userId)
                                 if (extraMsgIndex > -1) {
-                                    var extraMsg = extraMsgList[extraMsgIndex]
+                                    const extraMsg = extraMsgList[extraMsgIndex]
                                     extraMsg.messageList = [msg, ...extraMsg.messageList]
                                     extraMsgList[extraMsgIndex] = { ...extraMsg }
                                 } else {
-                                    var rq = await firestore().collection('users').doc(`${userId}`).get()
-                                    var userData: ProfileX = rq.data() || {}
+                                    const rq = await firestore().collection('users').doc(`${userId}`).get()
+                                    const userData: ProfileX = rq.data() || {}
                                     dbRef.ref(`/online/${snap.key}`).once('value', snap2 => {
-                                        var extraMsg: ExtraMessage = {
+                                        const extraMsg: ExtraMessage = {
                                             ownUser: userData,
                                             messageList: [msg],
                                             online: snap2.val()
                                         }
-                                        var newExtraMsgList = [extraMsg, ...extraMsgList]
+                                        const newExtraMsgList = [extraMsg, ...extraMsgList]
                                         extraMsgList.sort((a, b) =>
                                             (b.messageList.length > 0 ? b.messageList[0].create_at : 0) - (a.messageList.length > 0 ? a.messageList[0].create_at : 0))
                                         return dispatch(TriggerMessageListenerSuccess(newExtraMsgList))
@@ -163,7 +163,7 @@ export var TriggerMessageListenerRequest = ():
 
 
 
-                var fetchMyMessagesTasks = userIds.map((userId, index) => {
+                const fetchMyMessagesTasks = userIds.map((userId, index) => {
                     return new Promise((resolve, reject) => {
                         dbRef.ref(`/messages/${convertToFirebaseDatabasePathName(userId)}/${(myUsernamePath)}`)
                             .once('value', snap2 => {
@@ -180,7 +180,7 @@ export var TriggerMessageListenerRequest = ():
                             })
                     })
                 })
-                var fetchUserStatusTasks = userIds.map((userId, index) => {
+                const fetchUserStatusTasks = userIds.map((userId, index) => {
                     return new Promise<OnlineStatus>((resolve, reject) => {
                         dbRef.ref(`/online/${convertToFirebaseDatabasePathName(userId)}`)
                             .once('value', snap3 => {
@@ -189,8 +189,8 @@ export var TriggerMessageListenerRequest = ():
                     })
                 })
                 Promise.all(fetchMyMessagesTasks).then(async () => {
-                    var preUserInfos: ProfileX[] = store.getState().messages.map(x => x.ownUser)
-                    var fetchUserInfoListTasks: Promise<ProfileX>[] = userIds
+                    const preUserInfos: ProfileX[] = store.getState().messages.map(x => x.ownUser)
+                    const fetchUserInfoListTasks: Promise<ProfileX>[] = userIds
                         .map(async userId => {
                             let idx = -1
                             preUserInfos.find((x, index) => {
@@ -200,14 +200,14 @@ export var TriggerMessageListenerRequest = ():
                             if (idx > -1) {
                                 return preUserInfos[idx]
                             }
-                            var rq = await ref.collection('users')
+                            const rq = await ref.collection('users')
                                 .doc(`${userId}`).get()
-                            var userData: ProfileX = rq.data() || {}
+                            const userData: ProfileX = rq.data() || {}
                             return userData
                         })
-                    var userInfos: ProfileX[] = await Promise.all(fetchUserInfoListTasks)
-                    var onlineStatus: OnlineStatus[] = await Promise.all(fetchUserStatusTasks)
-                    var collection: MessageList = messageCollection.map((messageGroup, index) => {
+                    const userInfos: ProfileX[] = await Promise.all(fetchUserInfoListTasks)
+                    const onlineStatus: OnlineStatus[] = await Promise.all(fetchUserStatusTasks)
+                    const collection: MessageList = messageCollection.map((messageGroup, index) => {
                         return {
                             messageList: messageGroup,
                             ownUser: userInfos[index],
@@ -229,7 +229,7 @@ export var TriggerMessageListenerRequest = ():
         }
     }
 }
-export var TriggerMessageListenerFailure = (): MessageErrorAction => {
+export const TriggerMessageListenerFailure = (): MessageErrorAction => {
     return {
         type: messagesActionTypes.TRIGGER_MESSAGES_LISTENER_FAILURE,
         payload: {
@@ -237,48 +237,48 @@ export var TriggerMessageListenerFailure = (): MessageErrorAction => {
         }
     }
 }
-export var TriggerMessageListenerSuccess = (payload: MessageList): MessageSuccessAction<MessageList> => {
+export const TriggerMessageListenerSuccess = (payload: MessageList): MessageSuccessAction<MessageList> => {
     return {
         type: messagesActionTypes.TRIGGER_MESSAGES_LISTENER_SUCCESS,
         payload: payload
     }
 }
-export var CreateMessageRequest = (message: PostingMessage, targetUsername: string):
+export const CreateMessageRequest = (message: PostingMessage, targetUsername: string):
     ThunkAction<Promise<void>, {}, {}, MessageAction> => {
     return async (dispatch: ThunkDispatch<{}, {}, MessageAction>) => {
         try {
-            var targetUsernamePath = convertToFirebaseDatabasePathName(targetUsername)
-            var myUsername = store.getState().user.user.userInfo?.username || ''
-            var myUsernamePath = convertToFirebaseDatabasePathName(
+            const targetUsernamePath = convertToFirebaseDatabasePathName(targetUsername)
+            const myUsername = store.getState().user.user.userInfo?.username || ''
+            const myUsernamePath = convertToFirebaseDatabasePathName(
                 myUsername)
-            var dbRef = database()
-            var ref = firestore()
-            var uid = message.uid || new Date().getTime()
-            var msg = {
+            const dbRef = database()
+            const ref = firestore()
+            const uid = message.uid || new Date().getTime()
+            const msg = {
                 ...message,
                 userId: myUsername,
                 uid,
             }
             dbRef.ref(`/messages/${targetUsernamePath}/${myUsernamePath}/${uid}`)
                 .set(msg)
-            // var extraMsg = store.getState().messages.find(x => x.ownUser.username === targetUsername)
+            // const extraMsg = store.getState().messages.find(x => x.ownUser.username === targetUsername)
             // if (extraMsg) {
-            //     var index = store.getState().messages.findIndex(x => x === extraMsg)
-            //     var newExtraMsg = { ...extraMsg }
+            //     const index = store.getState().messages.findIndex(x => x === extraMsg)
+            //     const newExtraMsg = { ...extraMsg }
             //     newExtraMsg.messageList = [msg, ...newExtraMsg.messageList]
-            //     var newExtraList = [...store.getState().messages]
+            //     const newExtraList = [...store.getState().messages]
             //     newExtraList[index] = newExtraMsg
             //     dispatch(TriggerMessageListenerSuccess(newExtraList))
             // } else {
-            //     var rq = await ref.collection('users').doc(`${targetUsername}`).get()
-            //     var targetUserData: ProfileX = rq.data() || {}
+            //     const rq = await ref.collection('users').doc(`${targetUsername}`).get()
+            //     const targetUserData: ProfileX = rq.data() || {}
             //     dbRef.ref(`/online/${targetUsernamePath}`).once('value', snap => {
-            //         var newExtraMsg: ExtraMessage = {
+            //         const newExtraMsg: ExtraMessage = {
             //             messageList: [msg],
             //             ownUser: targetUserData,
             //             online: snap.val()
             //         }
-            //         var newExtraList = [...store.getState().messages]
+            //         const newExtraList = [...store.getState().messages]
             //         newExtraList.push(newExtraMsg)
             //         dispatch(TriggerMessageListenerSuccess(newExtraList))
             //     })
@@ -289,23 +289,23 @@ export var CreateMessageRequest = (message: PostingMessage, targetUsername: stri
         }
     }
 }
-export var MakeSeenRequest = (targetUsername: string, msgUid: number):
+export const MakeSeenRequest = (targetUsername: string, msgUid: number):
     ThunkAction<Promise<void>, {}, {}, MessageAction> => {
     return async (dispatch: ThunkDispatch<{}, {}, MessageAction>) => {
         try {
-            var targetUsernamePath = convertToFirebaseDatabasePathName(targetUsername)
-            var myUsername = store.getState().user.user.userInfo?.username || ''
-            var myUsernamePath = convertToFirebaseDatabasePathName(
+            const targetUsernamePath = convertToFirebaseDatabasePathName(targetUsername)
+            const myUsername = store.getState().user.user.userInfo?.username || ''
+            const myUsernamePath = convertToFirebaseDatabasePathName(
                 myUsername)
-            var dbRef = database()
+            const dbRef = database()
             dbRef.ref(`/messages/${myUsernamePath}/${targetUsernamePath}/${msgUid}`)
                 .update({
                     seen: seenTypes.SEEN
                 })
             dbRef.ref(`/messages/${targetUsernamePath}/forceUpdate`).set(Math.random())
-            var extraMsg = store.getState().messages.find(x => x.ownUser.username === targetUsername)
+            const extraMsg = store.getState().messages.find(x => x.ownUser.username === targetUsername)
             if (extraMsg) {
-                var msg = extraMsg.messageList.find(x => x.uid === msgUid)
+                const msg = extraMsg.messageList.find(x => x.uid === msgUid)
                 if (msg) {
                     msg.seen = 1
                     dispatch(TriggerMessageListenerSuccess([...store.getState().messages]))
@@ -317,31 +317,31 @@ export var MakeSeenRequest = (targetUsername: string, msgUid: number):
         }
     }
 }
-export var CreateEmptyConversationRequest = (targetUsername: string):
+export const CreateEmptyConversationRequest = (targetUsername: string):
     ThunkAction<Promise<void>, {}, {}, MessageAction> => {
     return async (dispatch: ThunkDispatch<{}, {}, MessageAction>) => {
         try {
-            var targetUsernamePath = convertToFirebaseDatabasePathName(targetUsername)
-            var myUsername = store.getState().user.user.userInfo?.username || ''
-            var myUsernamePath = convertToFirebaseDatabasePathName(
+            const targetUsernamePath = convertToFirebaseDatabasePathName(targetUsername)
+            const myUsername = store.getState().user.user.userInfo?.username || ''
+            const myUsernamePath = convertToFirebaseDatabasePathName(
                 myUsername)
-            var dbRef = database()
-            var ref = firestore()
-            var rq = await ref.collection('users').doc(`${targetUsername}`).get()
+            const dbRef = database()
+            const ref = firestore()
+            const rq = await ref.collection('users').doc(`${targetUsername}`).get()
             if (rq.exists) {
                 dbRef.ref(`/messages/${targetUsernamePath}/${myUsernamePath}`)
                     .set('NULL')
                 dbRef.ref(`/messages/${myUsernamePath}/${targetUsernamePath}`)
                     .set('NULL')
-                var extraMsg = store.getState().messages.find(x => x.ownUser.username === targetUsername)
-                var targetUserData: ProfileX = rq.data() || {}
+                const extraMsg = store.getState().messages.find(x => x.ownUser.username === targetUsername)
+                const targetUserData: ProfileX = rq.data() || {}
                 dbRef.ref(`/online/${targetUsernamePath}`).once('value', snap => {
-                    var newExtraMsg: ExtraMessage = {
+                    const newExtraMsg: ExtraMessage = {
                         messageList: [],
                         ownUser: targetUserData,
                         online: snap.val()
                     }
-                    var newExtraList = [newExtraMsg, ...store.getState().messages]
+                    const newExtraList = [newExtraMsg, ...store.getState().messages]
                     newExtraList.sort((a, b) =>
                         (b.messageList.length > 0 ? b.messageList[0].create_at : 0) - (a.messageList.length > 0 ? a.messageList[0].create_at : 0))
                     dispatch(TriggerMessageListenerSuccess(newExtraList))
@@ -354,21 +354,21 @@ export var CreateEmptyConversationRequest = (targetUsername: string):
         }
     }
 }
-export var AddEmoijToMessageRequest = (targetUsername: string, msgId: number, emoji: number):
+export const AddEmoijToMessageRequest = (targetUsername: string, msgId: number, emoji: number):
     ThunkAction<Promise<void>, {}, {}, MessageAction> => {
     return async (dispatch: ThunkDispatch<{}, {}, MessageAction>) => {
         try {
-            var targetUsernamePath = convertToFirebaseDatabasePathName(targetUsername)
-            var myUsername = store.getState().user.user.userInfo?.username || ''
-            var myUsernamePath = convertToFirebaseDatabasePathName(
+            const targetUsernamePath = convertToFirebaseDatabasePathName(targetUsername)
+            const myUsername = store.getState().user.user.userInfo?.username || ''
+            const myUsernamePath = convertToFirebaseDatabasePathName(
                 myUsername)
-            var dbRef = database()
-            var extraMsgIndex = store.getState().messages.findIndex(x => x.ownUser.username === targetUsername)
+            const dbRef = database()
+            const extraMsgIndex = store.getState().messages.findIndex(x => x.ownUser.username === targetUsername)
             if (extraMsgIndex > -1) {
-                var extraMsg = store.getState().messages[extraMsgIndex]
-                var msgIndex = extraMsg.messageList.findIndex(x => x.uid === msgId)
+                const extraMsg = store.getState().messages[extraMsgIndex]
+                const msgIndex = extraMsg.messageList.findIndex(x => x.uid === msgId)
                 if (msgIndex > -1) {
-                    var msg = extraMsg.messageList[msgIndex]
+                    const msg = extraMsg.messageList[msgIndex]
                     if (msg.userId === targetUsername) {
                         dbRef.ref(`/messages/${myUsernamePath}/${targetUsernamePath}/${msgId}/yourEmoji`)
                             .set(emoji)
@@ -385,21 +385,21 @@ export var AddEmoijToMessageRequest = (targetUsername: string, msgId: number, em
         }
     }
 }
-export var RemoveEmoijToMessageRequest = (targetUsername: string, msgId: number):
+export const RemoveEmoijToMessageRequest = (targetUsername: string, msgId: number):
     ThunkAction<Promise<void>, {}, {}, MessageAction> => {
     return async (dispatch: ThunkDispatch<{}, {}, MessageAction>) => {
         try {
-            var targetUsernamePath = convertToFirebaseDatabasePathName(targetUsername)
-            var myUsername = store.getState().user.user.userInfo?.username || ''
-            var myUsernamePath = convertToFirebaseDatabasePathName(
+            const targetUsernamePath = convertToFirebaseDatabasePathName(targetUsername)
+            const myUsername = store.getState().user.user.userInfo?.username || ''
+            const myUsernamePath = convertToFirebaseDatabasePathName(
                 myUsername)
-            var dbRef = database()
-            var extraMsgIndex = store.getState().messages.findIndex(x => x.ownUser.username === targetUsername)
+            const dbRef = database()
+            const extraMsgIndex = store.getState().messages.findIndex(x => x.ownUser.username === targetUsername)
             if (extraMsgIndex > -1) {
-                var extraMsg = store.getState().messages[extraMsgIndex]
-                var msgIndex = extraMsg.messageList.findIndex(x => x.uid === msgId)
+                const extraMsg = store.getState().messages[extraMsgIndex]
+                const msgIndex = extraMsg.messageList.findIndex(x => x.uid === msgId)
                 if (msgIndex > -1) {
-                    var msg = extraMsg.messageList[msgIndex]
+                    const msg = extraMsg.messageList[msgIndex]
                     if (msg.userId === targetUsername) {
                         dbRef.ref(`/messages/${myUsernamePath}/${targetUsernamePath}/${msgId}/yourEmoji`).remove()
 
@@ -414,23 +414,23 @@ export var RemoveEmoijToMessageRequest = (targetUsername: string, msgId: number)
         }
     }
 }
-export var UndoMyLastMessageRequest = (targetUsername: string):
+export const UndoMyLastMessageRequest = (targetUsername: string):
     ThunkAction<Promise<void>, {}, {}, MessageAction> => {
     return async (dispatch: ThunkDispatch<{}, {}, MessageAction>) => {
         try {
-            var targetUsernamePath = convertToFirebaseDatabasePathName(targetUsername)
-            var myUsername = store.getState().user.user.userInfo?.username || ''
-            var myUsernamePath = convertToFirebaseDatabasePathName(
+            const targetUsernamePath = convertToFirebaseDatabasePathName(targetUsername)
+            const myUsername = store.getState().user.user.userInfo?.username || ''
+            const myUsernamePath = convertToFirebaseDatabasePathName(
                 myUsername)
-            var dbRef = database()
+            const dbRef = database()
             dbRef.ref(`/messages/${targetUsernamePath}/${myUsernamePath}`).once('value', snap => {
-                var msgList: Message[] = []
+                const msgList: Message[] = []
                 snap.forEach(msg => {
                     msgList.push(msg.val())
                 })
-                var myLastMsg = msgList.pop()
+                const myLastMsg = msgList.pop()
                 if (myLastMsg) {
-                    var uid = myLastMsg.uid
+                    const uid = myLastMsg.uid
                     dbRef.ref(`/messages/${targetUsernamePath}/${myUsernamePath}/${uid}`).remove()
                     dispatch(TriggerMessageListenerRequest())
                 }
