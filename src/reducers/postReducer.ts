@@ -4,8 +4,8 @@ import { UserInfo } from './userReducer'
 import { Comment } from './commentReducer'
 import { ProcessedImage } from '../screens/Home/Account/GalleryChooser'
 import { MapBoxAddress } from '../utils'
-export const LIMIT_POSTS_PER_LOADING = 2
-export const postActionTypes = {
+export let LIMIT_POSTS_PER_LOADING = 2
+export let postActionTypes = {
     FETCH_POST_LIST_REQUEST: 'FETCH_POST_LIST_REQUEST',
     FETCH_POST_LIST_SUCCESS: 'FETCH_POST_LIST_SUCCESS',
     FETCH_POST_LIST_FAILURE: 'FETCH_POST_LIST_FAILURE',
@@ -74,8 +74,8 @@ export type PostAction = PostSuccessAction<PostList>
     | PostSuccessAction<ExtraPost>
     | PostErrorAction
     | PostSuccessAction<Post>
-const defaultState: PostList = []
-const reducer = (state: PostList = defaultState, action: PostAction): PostList => {
+let defaultState: PostList = []
+let reducer = (state: PostList = defaultState, action: PostAction): PostList => {
     switch (action.type) {
         case postActionTypes.FETCH_POST_LIST_REQUEST:
             state = [...defaultState]
@@ -86,7 +86,7 @@ const reducer = (state: PostList = defaultState, action: PostAction): PostList =
             return state
         case postActionTypes.FETCH_POST_LIST_FAILURE:
             action = <PostErrorAction>action
-            const message = action.payload.message
+            let message = action.payload.message
             Alert.alert('Error', message)
             return state
         case postActionTypes.LOAD_MORE_POST_LIST_REQUEST:
@@ -94,12 +94,12 @@ const reducer = (state: PostList = defaultState, action: PostAction): PostList =
             return state
         case postActionTypes.LOAD_MORE_POST_LIST_SUCCESS:
             action = <PostSuccessAction<PostList>>action
-            const newPostList = state.concat(action.payload)
+            let newPostList = state.concat(action.payload)
             state = [...newPostList]
             return state
         case postActionTypes.LOAD_MORE_POST_LIST_FAILURE:
             action = <PostErrorAction>action
-            const message2 = action.payload.message
+            let message2 = action.payload.message
             Alert.alert('Error', message2)
             return state
         case postActionTypes.COMMENT_POST_REQUEST:
@@ -110,7 +110,7 @@ const reducer = (state: PostList = defaultState, action: PostAction): PostList =
             return state
         case postActionTypes.COMMENT_POST_FAILURE:
             action = <PostErrorAction>action
-            const message3 = action.payload.message
+            let message3 = action.payload.message
             Alert.alert('Error', message3)
             return state
         case postActionTypes.TOGGLE_LIKE_POST_REQUEST:
@@ -121,15 +121,15 @@ const reducer = (state: PostList = defaultState, action: PostAction): PostList =
             return state
         case postActionTypes.TOGGLE_LIKE_POST_FAILURE:
             action = <PostErrorAction>action
-            const message4 = action.payload.message
+            let message4 = action.payload.message
             Alert.alert('Error', message4)
             return state
         case postActionTypes.UPDATE_POST_REQUEST:
             return state
         case postActionTypes.UPDATE_POST_SUCCESS:
             action = <PostSuccessAction<ExtraPost>>action
-            const updatedPost = action.payload
-            const postList = state.map(post => {
+            let updatedPost = action.payload
+            let postList = state.map(post => {
                 if (post.uid === updatedPost.uid) {
                     return { ...updatedPost }
                 }
