@@ -4,16 +4,16 @@ import { UserInfo } from './userReducer'
 import { MapBoxAddress } from '../utils'
 import { PostImage } from './postReducer'
 import { StoryProcessedImage } from '../screens/Others/StoryProcessor'
-export let seenTypes = {
+export const seenTypes = {
     NOTSEEN: 0,
     SEEN: 1,
 }
-export let storyActionTypes = {
+export const storyActionTypes = {
     FETCH_STORY_LIST_REQUEST: 'FETCH_STORY_LIST_REQUEST',
     FETCH_STORY_LIST_SUCCESS: 'FETCH_STORY_LIST_SUCCESS',
     FETCH_STORY_LIST_FAILURE: 'FETCH_STORY_LIST_FAILURE',
 }
-export let storyPermissions = {
+export const storyPermissions = {
     ALL: 1,
     CLOSE_FRIENDS: 2
 }
@@ -48,8 +48,8 @@ export interface StorySuccessAction {
     payload: StoryList
 }
 export type StoryAction = StorySuccessAction | StoryErrorAction
-let defaultState: StoryList = []
-let reducer = (state: StoryList = defaultState, action: StoryAction): StoryList => {
+const defaultState: StoryList = []
+const reducer = (state: StoryList = defaultState, action: StoryAction): StoryList => {
     switch (action.type) {
         case storyActionTypes.FETCH_STORY_LIST_REQUEST:
             state = [...defaultState]
@@ -60,7 +60,7 @@ let reducer = (state: StoryList = defaultState, action: StoryAction): StoryList 
             return state
         case storyActionTypes.FETCH_STORY_LIST_FAILURE:
             action = <StoryErrorAction>action
-            let message = action.payload.message
+            const message = action.payload.message
             Alert.alert('Error', message)
             return state
         default:
