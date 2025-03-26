@@ -7,57 +7,57 @@ import { Post, ExtraPost } from '../reducers/postReducer';
 import { Comment } from '../reducers/commentReducer';
 import { convertToFirebaseDatabasePathName } from '../utils';
 
-export const FetchNotificationListRequest = ():
+export var FetchNotificationListRequest = ():
     ThunkAction<Promise<void>, {}, {}, NotificationAction> => {
     return async (dispatch: ThunkDispatch<{}, {}, NotificationAction>) => {
         try {
-            const me = store.getState().user.user.userInfo
-            const ref = firestore()
-            const rq = await ref.collection('notifications')
+            var me = store.getState().user.user.userInfo
+            var ref = firestore()
+            var rq = await ref.collection('notifications')
                 .where('userId', 'array-contains', me?.username || '')
                 .orderBy('create_at', 'desc')
                 .get()
-            const notificationTasks: Promise<ExtraNotification>[] = rq.docs
+            var notificationTasks: Promise<ExtraNotification>[] = rq.docs
                 .map(async doc => {
-                    const notification: ExtraNotification = doc.data() || {}
-                    const fromUsernames = [...(notification.froms || [])]
+                    var notification: ExtraNotification = doc.data() || {}
+                    var fromUsernames = [...(notification.froms || [])]
                     fromUsernames.reverse()
-                    const previewFromTasks: Promise<UserInfo>[] = fromUsernames
+                    var previewFromTasks: Promise<UserInfo>[] = fromUsernames
                         .splice(0, 2)
                         .map(async usr => {
-                            const rq2 = await ref.collection('users')
+                            var rq2 = await ref.collection('users')
                                 .doc(usr).get()
-                            const data: UserInfo = rq2.data() || {}
+                            var data: UserInfo = rq2.data() || {}
                             return {
                                 username: data.username,
                                 avatarURL: data.avatarURL,
                                 fullname: data.fullname
                             }
                         })
-                    const previewUserInfos = await Promise.all(previewFromTasks)
+                    var previewUserInfos = await Promise.all(previewFromTasks)
                     notification.previewFroms = previewUserInfos
-                    const post = await ref.collection('posts')
+                    var post = await ref.collection('posts')
                         .doc(`${notification.postId}`).get()
-                    const postData: ExtraPost = post.data() || {}
+                    var postData: ExtraPost = post.data() || {}
                     postData.ownUser = (await ref.collection('users').doc(`${postData.userId}`).get()).data() || {}
                     notification.postInfo = postData
                     if (notification.type === notificationTypes.LIKE_MY_COMMENT
                         || notification.type === notificationTypes.COMMENT_MY_POST) {
-                        const rq2 = await ref.collectionGroup('comments')
+                        var rq2 = await ref.collectionGroup('comments')
                             .where('uid', '==', notification.commentId).get()
-                        const comment = rq2.docs[0].data() || {}
+                        var comment = rq2.docs[0].data() || {}
                         notification.commentInfo = comment
                     }
                     if (notification.type === notificationTypes.LIKE_MY_REPLY
                         || notification.type === notificationTypes.REPLY_MY_COMMENT) {
-                        const rq3 = await ref.collectionGroup('replies')
+                        var rq3 = await ref.collectionGroup('replies')
                             .where('uid', '==', notification.replyId).get()
-                        const reply: Comment = rq3.docs[0].data() || {}
+                        var reply: Comment = rq3.docs[0].data() || {}
                         notification.replyInfo = reply
                     }
                     return notification
                 })
-            const notifications = await Promise.all(notificationTasks)
+            var notifications = await Promise.all(notificationTasks)
             dispatch(FetchNotificationListSuccess(notifications))
         } catch (e) {
             console.warn(e)
@@ -65,7 +65,7 @@ export const FetchNotificationListRequest = ():
         }
     }
 }
-export const FetchNotificationListFailure = (): NotificationErrorAction => {
+export var FetchNotificationListFailure = (): NotificationErrorAction => {
     return {
         type: notificationActionTypes.FETCH_NOTIFICATIONS_FAILURE,
         payload: {
@@ -73,20 +73,20 @@ export const FetchNotificationListFailure = (): NotificationErrorAction => {
         }
     }
 }
-export const FetchNotificationListSuccess = (payload: NotificationList): NotificationSuccessAction<NotificationList> => {
+export var FetchNotificationListSuccess = (payload: NotificationList): NotificationSuccessAction<NotificationList> => {
     return {
         type: notificationActionTypes.FETCH_NOTIFICATIONS_SUCCESS,
         payload: payload
     }
 }
-export const CreateNotificationRequest = (notification: PostingNotification):
+export var CreateNotificationRequest = (notification: PostingNotification):
     ThunkAction<Promise<void>, {}, {}, NotificationAction> => {
     return async (dispatch: ThunkDispatch<{}, {}, NotificationAction>) => {
         try {
-            const dbRef = database()
-            const ref = firestore()
-            const uid = new Date().getTime()
-            const postNotification = { ...notification }
+            var dbRef = database()
+            var ref = firestore()
+            var uid = new Date().getTime()
+            var postNotification = { ...notification }
 
             let query = ref.collection('notifications')
                 .where('postId', '==', notification.postId)
@@ -109,17 +109,17 @@ export const CreateNotificationRequest = (notification: PostingNotification):
                 query = query.where('commentId', '==', 0)
                     .where('replyId', '==', 0)
             }
-            const rq = await query.get()
+            var rq = await query.get()
             if (notification.type === notificationTypes.LIKE_MY_POST
                 || notification.type === notificationTypes.LIKE_MY_COMMENT
                 || notification.type === notificationTypes.LIKE_MY_REPLY
                 || notification.type === notificationTypes.FOLLOW_ME
             ) {
                 if (rq.size > 0) {
-                    const targetNotification = rq.docs[0]
-                    const currentFroms = targetNotification.data().froms as string[]
+                    var targetNotification = rq.docs[0]
+                    var currentFroms = targetNotification.data().froms as string[]
                         || []
-                    const index = currentFroms.indexOf(notification.from || "")
+                    var index = currentFroms.indexOf(notification.from || "")
                     if (index < 0) {
                         currentFroms.push(notification.from || "")
                         notification.userId?.map(usr => {
@@ -159,10 +159,10 @@ export const CreateNotificationRequest = (notification: PostingNotification):
                 if (notification.isUndo) {
                     delete notification.isUndo
                     if (rq.size > 0) {
-                        const targetNotification = rq.docs[0]
-                        const currentFroms = targetNotification.data().froms as string[]
+                        var targetNotification = rq.docs[0]
+                        var currentFroms = targetNotification.data().froms as string[]
                             || []
-                        const index = currentFroms.indexOf(notification.from || "")
+                        var index = currentFroms.indexOf(notification.from || "")
                         if (index > -1) {
                             currentFroms.splice(index, 1)
                         }
