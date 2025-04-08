@@ -7,7 +7,7 @@ import { ExtraPost } from "../reducers/postReducer"
 import { ProfileX } from "../reducers/profileXReducer"
 import { StoryProcessedImage } from "../screens/Others/StoryProcessor"
 
-export const timestampToString = (create_at: number, suffix?: boolean): string => {
+export var timestampToString = (create_at: number, suffix?: boolean): string => {
     let diffTime: string | number = (new Date().getTime() - (create_at || 0)) / 1000
     if (diffTime < 60) diffTime = 'Just now'
     else if (diffTime > 60 && diffTime < 3600) {
@@ -25,34 +25,34 @@ export const timestampToString = (create_at: number, suffix?: boolean): string =
     }
     return diffTime
 }
-export const convertDateToTimeStampFireBase = (date: Date): firestore.Timestamp => {
+export var convertDateToTimeStampFireBase = (date: Date): firestore.Timestamp => {
     return new firestore.Timestamp(Math.floor(date.getTime() / 1000), date.getTime() - Math.floor(date.getTime() / 1000) * 1000)
 }
-export const generateUsernameKeywords = (fullText: string): string[] => {
-    const keywords: string[] = []
-    const splitedText = fullText.split('')
+export var generateUsernameKeywords = (fullText: string): string[] => {
+    var keywords: string[] = []
+    var splitedText = fullText.split('')
     splitedText.map((s, index) => {
-        const temp = splitedText.slice(0, index + 1).join('')
+        var temp = splitedText.slice(0, index + 1).join('')
         keywords.push(temp)
     })
     return Array.from(new Set(keywords))
 }
-export const findUsersByName = async (q: string) => {
+export var findUsersByName = async (q: string) => {
     let users: UserInfo[] = []
-    const ref = firestore()
-    const rq = await ref.collection('users').where(
+    var ref = firestore()
+    var rq = await ref.collection('users').where(
         'keyword', 'array-contains', q
     ).get()
     rq.docs.map(x => {
-        const user: UserInfo = x.data()
+        var user: UserInfo = x.data()
         users.push(user)
     })
     users = users.filter(u => u.username !== store.getState().user.user.userInfo?.username)
     return users
 }
-export const uriToBlob = (uri: string) => {
+export var uriToBlob = (uri: string) => {
     return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
+        var xhr = new XMLHttpRequest();
         xhr.onload = function () {
             resolve(xhr.response);
         };
@@ -73,13 +73,13 @@ export type MapBoxAddress = {
     storySources?: number[],
     center?: [number, number]
 }
-export const searchLocation = (query: string): Promise<MapBoxAddress[]> => {
+export var searchLocation = (query: string): Promise<MapBoxAddress[]> => {
     return new Promise((resolve, reject) => {
         fetch(`http://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURI(query.trim())}.json?access_token=${MAPBOX_ACCESS_TOKEN}`)
             .then(res => res.json())
             .then(data => {
-                const address: MapBoxAddress[] = []
-                const result: {
+                var address: MapBoxAddress[] = []
+                var result: {
                     features: MapBoxAddress[]
                 } = data
                 result.features.map(feature => {
@@ -94,8 +94,8 @@ export const searchLocation = (query: string): Promise<MapBoxAddress[]> => {
             .catch(err => reject(err))
     })
 }
-export const sharePost = (post: ExtraPost) => {
-    const options: Options = {
+export var sharePost = (post: ExtraPost) => {
+    var options: Options = {
         activityItemSources: [
             { // For sharing url with custom title.
                 placeholderItem: {
@@ -144,8 +144,8 @@ export const sharePost = (post: ExtraPost) => {
     }
     Share.open(options)
 }
-export const shareProfile = (user: ProfileX) => {
-    const options: Options = {
+export var shareProfile = (user: ProfileX) => {
+    var options: Options = {
         activityItemSources: [
             { // For sharing url with custom title.
                 placeholderItem: {
@@ -194,30 +194,30 @@ export const shareProfile = (user: ProfileX) => {
     }
     Share.open(options)
 }
-export const Timestamp = () => {
-    const curDate = new Date()
-    const second = Math.floor(curDate.getTime() / 1000)
-    const nanosecond = curDate.getTime() - second * 1000
+export var Timestamp = () => {
+    var curDate = new Date()
+    var second = Math.floor(curDate.getTime() / 1000)
+    var nanosecond = curDate.getTime() - second * 1000
     return new firestore.Timestamp(second, nanosecond)
 }
-export const convertToFirebaseDatabasePathName = (text: string) => {
+export var convertToFirebaseDatabasePathName = (text: string) => {
     return text.replace(/\./g, "!").replace(/#/g, "@")
         .replace(/\$/g, "%").replace(/\[/g, "&")
         .replace(/\]/g, "*")
 }
-export const revertFirebaseDatabasePathName = (text: string) => {
+export var revertFirebaseDatabasePathName = (text: string) => {
     return text.replace(/\!/g, ".").replace(/\@/g, "#")
         .replace(/\%/g, "$").replace(/\&/g, "[")
         .replace(/\*/g, "]")
 }
-export const uploadSuperImages = (images: StoryProcessedImage[]): Promise<{
+export var uploadSuperImages = (images: StoryProcessedImage[]): Promise<{
     sourceId: number,
     hashtags: string[],
     mention: string[],
     address: MapBoxAddress[]
 }>[] => {
-    const ref = firestore()
-    const myUsername = store.getState().user.user.userInfo?.username || ''
+    var ref = firestore()
+    var myUsername = store.getState().user.user.userInfo?.username || ''
     return images.map(async (img, index) => {
         let uid = new Date().getTime() + index
         img.texts = img.texts.map(txt => {
@@ -232,13 +232,13 @@ export const uploadSuperImages = (images: StoryProcessedImage[]): Promise<{
             delete label.animY
             return label
         })
-        const blob = await uriToBlob(img.uri)
-        const rq = await storage()
+        var blob = await uriToBlob(img.uri)
+        var rq = await storage()
             .ref(`story/${myUsername || 'others'}/${new Date().getTime() + Math.random()}.${img.extension.toLowerCase()}`)
             .put(blob as Blob, {
                 contentType: `image/${img.extension.toLowerCase()}`
             })
-        const downloadUri = await rq.ref.getDownloadURL()
+        var downloadUri = await rq.ref.getDownloadURL()
         ref.collection('superimages').doc(`${uid}`).set({
             ...img,
             uri: downloadUri,
@@ -259,9 +259,9 @@ export const uploadSuperImages = (images: StoryProcessedImage[]): Promise<{
         }
     })
 }
-export const getImageClass = (url: string): Promise<string> => {
+export var getImageClass = (url: string): Promise<string> => {
     return new Promise((resolve, reject) => {
-        const data = new FormData()
+        var data = new FormData()
         data.append('URL', url)
         fetch(CLASSIFY_API, {
             method: 'POST',
