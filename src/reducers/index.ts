@@ -19,7 +19,7 @@ export type AppState = {
     profileX: ProfileX,
     messages: MessageList
 }
-let rootReducer = combineReducers<AppState>({
+const rootReducer = combineReducers<AppState>({
     user: userReducer,
     storyList: storyReducer,
     postList: postReducer,
@@ -28,6 +28,6 @@ let rootReducer = combineReducers<AppState>({
     profileX: profileXReducer,
     messages: messageReducer
 })
-export let useSelector:
+export const useSelector:
     TypedUseSelectorHook<ReturnType<typeof rootReducer>> = useReduxSelector
 export default rootReducer
