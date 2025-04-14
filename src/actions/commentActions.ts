@@ -8,28 +8,28 @@ import { Timestamp } from '../utils';
 import { notificationTypes } from '../reducers/notificationReducer';
 import { ExtraPost } from '../reducers/postReducer';
 
-export const FetchCommentListRequest = (postId: number, postData?: ExtraPost):
+export var FetchCommentListRequest = (postId: number, postData?: ExtraPost):
     ThunkAction<Promise<void>, {}, {}, CommentAction> => {
     return async (dispatch: ThunkDispatch<{}, {}, CommentAction>) => {
         try {
-            const ref = firestore()
-            const rq = await ref.collection('posts')
+            var ref = firestore()
+            var rq = await ref.collection('posts')
                 .where('uid', '==', postId).limit(1).get()
             if (rq.docs.length > 0) {
-                const targetPost = rq.docs[0]
-                const ownIds: string[] = []
+                var targetPost = rq.docs[0]
+                var ownIds: string[] = []
                 let collection: CommentList = []
-                const rqAll = await targetPost.ref.collection('comments').get()
+                var rqAll = await targetPost.ref.collection('comments').get()
                 let i = 0
                 while (collection.length < LIMIT_COMMENTS_PER_LOADING
                     && collection.length < rqAll.size) {
-                    const rq2 = await targetPost.ref.collection('comments')
+                    var rq2 = await targetPost.ref.collection('comments')
                         .orderBy('create_at', 'asc')
                         .limit(LIMIT_COMMENTS_PER_LOADING - collection.length)
                         .get()
                     i += LIMIT_COMMENTS_PER_LOADING - collection.length
                     rq2.docs.map(x => {
-                        const data: ExtraComment = { ...x.data() }
+                        var data: ExtraComment = { ...x.data() }
                         x.ref.collection('replies')
                             .orderBy('create_at', 'asc').get().then(rq3 => {
                                 let replies = rq3.docs.map(x2 => {
@@ -46,10 +46,10 @@ export const FetchCommentListRequest = (postId: number, postData?: ExtraPost):
                 }
                 let ownInfos: UserInfo[] = []
                 while (ownIds.length > 0) {
-                    const rs = await firestore().collection('users')
+                    var rs = await firestore().collection('users')
                         .where('username', 'in', ownIds.splice(0, 10))
                         .get()
-                    const temp: UserInfo[] = rs.docs.map(doc => {
+                    var temp: UserInfo[] = rs.docs.map(doc => {
                         return doc.data()
                     })
                     ownInfos = ownInfos.concat(temp)
@@ -63,7 +63,7 @@ export const FetchCommentListRequest = (postId: number, postData?: ExtraPost):
                     return comment
                 })
                 if (postData) {
-                    const payload: CommentExtraList = {
+                    var payload: CommentExtraList = {
                         post: { ...postData },
                         comments: collection
                     }
@@ -72,11 +72,11 @@ export const FetchCommentListRequest = (postId: number, postData?: ExtraPost):
                     let ownUser = store.getState()
                         .postList.filter(x => x.uid
                             === targetPost.data().uid)
-                    const info = ownUser.length > 0 ? (ownUser[0].ownUser || {}) : {}
-                    const post = {
+                    var info = ownUser.length > 0 ? (ownUser[0].ownUser || {}) : {}
+                    var post = {
                         ...targetPost.data(), ownUser: info,
                     }
-                    const payload: CommentExtraList = {
+                    var payload: CommentExtraList = {
                         post,
                         comments: collection
                     }
@@ -92,7 +92,7 @@ export const FetchCommentListRequest = (postId: number, postData?: ExtraPost):
         }
     }
 }
-export const FetchCommentListFailure = (): CommentErrorAction => {
+export var FetchCommentListFailure = (): CommentErrorAction => {
     return {
         type: commentActionTypes.FETCH_COMMENTS_FAILURE,
         payload: {
@@ -100,7 +100,7 @@ export const FetchCommentListFailure = (): CommentErrorAction => {
         }
     }
 }
-export const FetchCommentListSuccess = (payload: CommentExtraList):
+export var FetchCommentListSuccess = (payload: CommentExtraList):
     CommentSuccessAction<CommentExtraList> => {
     return {
         type: commentActionTypes.FETCH_COMMENTS_SUCCESS,
@@ -110,31 +110,31 @@ export const FetchCommentListSuccess = (payload: CommentExtraList):
 /**
  * LOAD MORE COMMENTS ACTIONS
  */
-export const LoadMoreCommentListRequest = (postId: number):
+export var LoadMoreCommentListRequest = (postId: number):
     ThunkAction<Promise<void>, {}, {}, CommentAction> => {
     return async (dispatch: ThunkDispatch<{}, {}, CommentAction>) => {
         try {
-            const loadedCommentIds = store.getState()
+            var loadedCommentIds = store.getState()
                 .comment.comments.map(x => x.uid)
-            const ref = firestore()
-            const rq = await ref.collection('posts')
+            var ref = firestore()
+            var rq = await ref.collection('posts')
                 .where('uid', '==', postId).limit(1).get()
             if (rq.docs.length > 0) {
 
-                const targetPost = rq.docs[0]
-                const ownIds: string[] = []
+                var targetPost = rq.docs[0]
+                var ownIds: string[] = []
                 let collection: CommentList = []
-                const rqAll = await targetPost.ref.collection('comments').get()
+                var rqAll = await targetPost.ref.collection('comments').get()
                 while (collection.length < LIMIT_COMMENTS_PER_LOADING
                     && loadedCommentIds.length + collection.length < rqAll.size) {
-                    const rq2 = await targetPost.ref.collection('comments')
+                    var rq2 = await targetPost.ref.collection('comments')
                         .orderBy('create_at', 'asc')
                         .limit(LIMIT_COMMENTS_PER_LOADING + loadedCommentIds.length)
                         .get()
                     rq2.docs.map(x => {
                         if (loadedCommentIds.indexOf(x.data().uid) < 0
                             && collection.length < LIMIT_COMMENTS_PER_LOADING) {
-                            const data: ExtraComment = { ...x.data() }
+                            var data: ExtraComment = { ...x.data() }
                             // x.ref.collection('replies')
                             //     .orderBy('create_at', 'asc').get().then(rq3 => {
                             //         let replies = rq3.docs.map(x2 => {
@@ -152,10 +152,10 @@ export const LoadMoreCommentListRequest = (postId: number):
                 }
                 let ownInfos: UserInfo[] = []
                 while (ownIds.length > 0) {
-                    const rs = await firestore().collection('users')
+                    var rs = await firestore().collection('users')
                         .where('username', 'in', ownIds.splice(0, 10))
                         .get()
-                    const temp: UserInfo[] = rs.docs.map(doc => {
+                    var temp: UserInfo[] = rs.docs.map(doc => {
                         return doc.data()
                     })
                     ownInfos = ownInfos.concat(temp)
@@ -168,7 +168,7 @@ export const LoadMoreCommentListRequest = (postId: number):
                     })
                     return comment
                 })
-                const payload: CommentListWithScroll = {
+                var payload: CommentListWithScroll = {
                     comments: collection,
                     scrollDown: false
                 }
@@ -180,12 +180,12 @@ export const LoadMoreCommentListRequest = (postId: number):
         }
     }
 }
-export const ResetCommentList = () => {
+export var ResetCommentList = () => {
     return {
         type: commentActionTypes.FETCH_COMMENTS_REQUEST,
     }
 }
-export const LoadMoreCommentListFailure = (): CommentErrorAction => {
+export var LoadMoreCommentListFailure = (): CommentErrorAction => {
     return {
         type: commentActionTypes.LOAD_MORE_COMMENTS_FAILURE,
         payload: {
@@ -193,7 +193,7 @@ export const LoadMoreCommentListFailure = (): CommentErrorAction => {
         }
     }
 }
-export const LoadMoreCommentListSuccess = (payload: CommentListWithScroll):
+export var LoadMoreCommentListSuccess = (payload: CommentListWithScroll):
     CommentSuccessAction<CommentListWithScroll> => {
     return {
         type: commentActionTypes.LOAD_MORE_COMMENTS_SUCCESS,
@@ -203,24 +203,24 @@ export const LoadMoreCommentListSuccess = (payload: CommentListWithScroll):
 /**
  * TOGGLE LIKE REPLY ACTION
  */
-export const ToggleLikeCommentRequest = (postId: number, commentId: number):
+export var ToggleLikeCommentRequest = (postId: number, commentId: number):
     ThunkAction<Promise<void>, {}, {}, CommentAction> => {
     return async (dispatch: ThunkDispatch<{}, {}, CommentAction>) => {
         try {
-            const me = store.getState().user.user.userInfo
+            var me = store.getState().user.user.userInfo
             let commentList = [...store.getState().comment.comments]
-            const ref = firestore()
+            var ref = firestore()
             if (me?.username) {
-                const username = me.username
-                const rq = await ref.collectionGroup('comments')
+                var username = me.username
+                var rq = await ref.collectionGroup('comments')
                     .where('uid', '==', commentId).limit(1).get()
-                const rq2 = await ref.collection('posts').doc(`${postId}`).get()
+                var rq2 = await ref.collection('posts').doc(`${postId}`).get()
                 if (rq.size > 0) {
-                    const targetPost = rq2.data() || {}
-                    const targetComment = rq.docs[0]
-                    const comment: ExtraComment = targetComment.data()
-                    const likes = comment.likes || []
-                    const index = likes.indexOf(username)
+                    var targetPost = rq2.data() || {}
+                    var targetComment = rq.docs[0]
+                    var comment: ExtraComment = targetComment.data()
+                    var likes = comment.likes || []
+                    var index = likes.indexOf(username)
                     if (index < 0) {
                         likes.push(username)
                     } else likes.splice(index, 1)
@@ -232,7 +232,7 @@ export const ToggleLikeCommentRequest = (postId: number, commentId: number):
                     if (targetComment.data().userId !== me?.username) {
                         let notificationList = targetPost.notificationUsers || []
                         notificationList.push(targetComment.data().userId)
-                        const myIndex = notificationList.indexOf(me?.username || '')
+                        var myIndex = notificationList.indexOf(me?.username || '')
                         if (myIndex > -1) notificationList.splice(myIndex, 1)
                         notificationList = Array.from(new Set(notificationList))
                         if (notificationList.length > 0) {
@@ -262,14 +262,14 @@ export const ToggleLikeCommentRequest = (postId: number, commentId: number):
                     }
                     commentList = commentList.map(xComment => {
                         if (xComment.uid === comment.uid) {
-                            const newComment = { ...xComment }
+                            var newComment = { ...xComment }
                             newComment.likes = likes
                             return newComment
                         }
                         return xComment
                     })
 
-                    const payload: CommentListWithScroll = {
+                    var payload: CommentListWithScroll = {
                         comments: commentList,
                         scrollDown: false
                     }
@@ -285,7 +285,7 @@ export const ToggleLikeCommentRequest = (postId: number, commentId: number):
         }
     }
 }
-export const ToggleLikeCommentFailure = (): CommentErrorAction => {
+export var ToggleLikeCommentFailure = (): CommentErrorAction => {
     return {
         type: commentActionTypes.TOGGLE_LIKE_COMMENT_FAILURE,
         payload: {
@@ -293,7 +293,7 @@ export const ToggleLikeCommentFailure = (): CommentErrorAction => {
         }
     }
 }
-export const ToggleLikeCommentSuccess = (payload: CommentListWithScroll):
+export var ToggleLikeCommentSuccess = (payload: CommentListWithScroll):
     CommentSuccessAction<CommentListWithScroll> => {
     return {
         type: commentActionTypes.TOGGLE_LIKE_COMMENT_SUCCESS,
@@ -303,22 +303,22 @@ export const ToggleLikeCommentSuccess = (payload: CommentListWithScroll):
 /**
  * TOGGLE LIKE COMMMENT ACTION
  */
-export const ToggleLikeReplyRequest = (replyId: number, commentId: number, postId: number):
+export var ToggleLikeReplyRequest = (replyId: number, commentId: number, postId: number):
     ThunkAction<Promise<void>, {}, {}, CommentAction> => {
     return async (dispatch: ThunkDispatch<{}, {}, CommentAction>) => {
         try {
-            const me = store.getState().user.user.userInfo
+            var me = store.getState().user.user.userInfo
             let commentList = [...store.getState().comment.comments]
-            const ref = firestore()
+            var ref = firestore()
             if (me?.username) {
-                const username = me.username
-                const rq = await ref.collectionGroup('replies')
+                var username = me.username
+                var rq = await ref.collectionGroup('replies')
                     .where('uid', '==', replyId).limit(1).get()
                 if (rq.size > 0) {
-                    const targetReply = rq.docs[0]
-                    const reply: ExtraComment = targetReply.data()
+                    var targetReply = rq.docs[0]
+                    var reply: ExtraComment = targetReply.data()
                     if (reply.likes) {
-                        const index = reply.likes.indexOf(username)
+                        var index = reply.likes.indexOf(username)
                         if (index < 0) {
                             reply.likes.push(username)
                         } else reply.likes.splice(
@@ -352,7 +352,7 @@ export const ToggleLikeReplyRequest = (replyId: number, commentId: number, postI
                         }
                         commentList = commentList.map(xComment => {
                             if (xComment.uid === commentId) {
-                                const newComment = { ...xComment }
+                                var newComment = { ...xComment }
                                 newComment.replies = xComment.replies?.map(xReply => {
                                     xReply = { ...xReply }
                                     if (xReply.uid === reply.uid) {
@@ -365,7 +365,7 @@ export const ToggleLikeReplyRequest = (replyId: number, commentId: number, postI
                             return xComment
                         })
 
-                        const payload: CommentListWithScroll = {
+                        var payload: CommentListWithScroll = {
                             comments: commentList,
                             scrollDown: false
                         }
@@ -382,7 +382,7 @@ export const ToggleLikeReplyRequest = (replyId: number, commentId: number, postI
         }
     }
 }
-export const ToggleLikeReplyFailure = (): CommentErrorAction => {
+export var ToggleLikeReplyFailure = (): CommentErrorAction => {
     return {
         type: commentActionTypes.TOGGLE_LIKE_COMMENT_FAILURE,
         payload: {
@@ -390,7 +390,7 @@ export const ToggleLikeReplyFailure = (): CommentErrorAction => {
         }
     }
 }
-export const ToggleLikeReplySuccess = (payload: CommentListWithScroll):
+export var ToggleLikeReplySuccess = (payload: CommentListWithScroll):
     CommentSuccessAction<CommentListWithScroll> => {
     return {
         type: commentActionTypes.TOGGLE_LIKE_COMMENT_SUCCESS,
@@ -400,20 +400,20 @@ export const ToggleLikeReplySuccess = (payload: CommentListWithScroll):
 /**
  * POST REPLY ACTIONS
  */
-export const PostReplyRequest = (postId: number, commentId: number, content: string):
+export var PostReplyRequest = (postId: number, commentId: number, content: string):
     ThunkAction<Promise<void>, {}, {}, CommentAction> => {
     return async (dispatch: ThunkDispatch<{}, {}, CommentAction>) => {
         try {
-            const me = store.getState().user.user
+            var me = store.getState().user.user
             let comments = [...store.getState().comment.comments]
-            const ref = firestore()
-            const rq = await ref.collectionGroup('comments')
+            var ref = firestore()
+            var rq = await ref.collectionGroup('comments')
                 .where('uid', '==', commentId).limit(1).get()
-            const rqTemp = await ref.collection('posts').doc(`${postId}`).get()
-            const targetPost = rqTemp.data() || {}
+            var rqTemp = await ref.collection('posts').doc(`${postId}`).get()
+            var targetPost = rqTemp.data() || {}
             if (rq.size > 0) {
-                const targetComment = rq.docs[0]
-                const replyUid = new Date().getTime()
+                var targetComment = rq.docs[0]
+                var replyUid = new Date().getTime()
                 await targetComment.ref.collection('replies').doc(`${replyUid}`)
                     .set({
                         content,
@@ -422,10 +422,10 @@ export const PostReplyRequest = (postId: number, commentId: number, content: str
                         uid: replyUid,
                         userId: me.userInfo?.username
                     })
-                const rq2 = await ref.collectionGroup('replies')
+                var rq2 = await ref.collectionGroup('replies')
                     .where('uid', '==', replyUid).limit(1).get()
                 //ADD NOTIFICATION
-                const targetCommentUsername = targetComment.data().userId
+                var targetCommentUsername = targetComment.data().userId
                 if (targetPost.userId !== me.userInfo?.username
                     && targetCommentUsername !== me.userInfo?.username) {
                     dispatch(CreateNotificationRequest({
@@ -442,7 +442,7 @@ export const PostReplyRequest = (postId: number, commentId: number, content: str
                 comments = comments.map(comment => {
                     if (comment.uid === commentId) {
                         comment = { ...comment }
-                        const reply: ExtraComment = rq2.docs[0].data()
+                        var reply: ExtraComment = rq2.docs[0].data()
                         reply.ownUser = me.userInfo
                         if (comment?.replies === undefined) {
                             comment.replies = []
@@ -462,7 +462,7 @@ export const PostReplyRequest = (postId: number, commentId: number, content: str
         }
     }
 }
-export const PostReplyFailure = (): CommentErrorAction => {
+export var PostReplyFailure = (): CommentErrorAction => {
     return {
         type: commentActionTypes.REPLY_COMMENT_FAILURE,
         payload: {
@@ -470,7 +470,7 @@ export const PostReplyFailure = (): CommentErrorAction => {
         }
     }
 }
-export const PostReplySuccess = (payload: CommentListWithScroll): CommentSuccessAction<CommentListWithScroll> => {
+export var PostReplySuccess = (payload: CommentListWithScroll): CommentSuccessAction<CommentListWithScroll> => {
     return {
         type: commentActionTypes.REPLY_COMMENT_SUCCESS,
         payload: payload
